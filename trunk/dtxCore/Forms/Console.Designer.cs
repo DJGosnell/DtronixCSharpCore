@@ -1,5 +1,5 @@
-﻿namespace dtxCore.Forms {
-	partial class frmConsole {
+﻿namespace dtxCore {
+	partial class Console {
 		/// <summary>
 		/// Required designer variable.
 		/// </summary>
@@ -41,25 +41,26 @@
 			this._rtbOutput.TabIndex = 0;
 			this._rtbOutput.Text = "Loading...";
 			// 
-			// frmConsole
+			// Console
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.BackColor = System.Drawing.Color.Black;
 			this.ClientSize = new System.Drawing.Size(612, 333);
 			this.Controls.Add(this._rtbOutput);
-			this.Name = "frmConsole";
+			this.Name = "Console";
 			this.ShowIcon = false;
 			this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
 			this.Text = "Console Output";
-			this.Load += new System.EventHandler(this.frmConsole_Load);
+			this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Console_FormClosing);
 			this.ResumeLayout(false);
 
 		}
 
 		#endregion
 
-		private System.Windows.Forms.RichTextBox _rtbOutput;
+		public System.Windows.Forms.RichTextBox _rtbOutput;
+
 
 	}
 }
