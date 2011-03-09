@@ -1,5 +1,5 @@
-﻿namespace dtxCore {
-	partial class Console {
+﻿namespace dtxCore.Forms {
+	partial class frmConsole {
 		/// <summary>
 		/// Required designer variable.
 		/// </summary>
@@ -53,6 +53,7 @@
 			this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
 			this.Text = "Console Output";
 			this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Console_FormClosing);
+			this.Load += new System.EventHandler(this.Console_Load);
 			this.ResumeLayout(false);
 
 		}

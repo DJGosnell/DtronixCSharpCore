@@ -72,11 +72,11 @@
     <Compile Include="Forms\frmAbout.Designer.cs">
       <DependentUpon>frmAbout.cs</DependentUpon>
     </Compile>
-    <Compile Include="Forms\Console.cs">
+    <Compile Include="Forms\frmConsole.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Forms\Console.Designer.cs">
-      <DependentUpon>Console.cs</DependentUpon>
+    <Compile Include="Forms\frmConsole.Designer.cs">
+      <DependentUpon>frmConsole.cs</DependentUpon>
     </Compile>
     <Compile Include="Properties\BuildInformation.cs">
       <AutoGen>True</AutoGen>
@@ -131,8 +131,8 @@
     <EmbeddedResource Include="Forms\frmAbout.resx">
       <DependentUpon>frmAbout.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Forms\Console.resx">
-      <DependentUpon>Console.cs</DependentUpon>
+    <EmbeddedResource Include="Forms\frmConsole.resx">
+      <DependentUpon>frmConsole.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
