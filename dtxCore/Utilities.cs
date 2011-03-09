@@ -263,7 +263,23 @@ namespace dtxCore {
 		}
 
 
-
-
+		/// <summary>
+		/// Reads an entire stream into a byte array of known length.
+		/// </summary>
+		/// <param name="stream">Input stream to read.</param>
+		/// <param name="buffer">Buffer of bytes to read the stream into.</param>
+		/// <returns>True of success, False on failure to read entire stream.</returns>
+		public static bool readStreamToEnd(Stream stream, byte[] buffer) {
+			int offset = 0;
+			int remaining = buffer.Length;
+			while(remaining > 0) {
+				int read = stream.Read(buffer, offset, remaining);
+				if(read <= 0)
+					return false;
+				remaining -= read;
+				offset += read;
+			}
+			return true;
+		}
 	}
 }
