@@ -281,5 +281,69 @@ namespace dtxCore {
 			}
 			return true;
 		}
+
+		static readonly int[] empty_int_array = new int[0];
+
+		/// <summary>
+		/// Matches all occurances of a bytes inside a byte[].
+		/// </summary>
+		/// <param name="haystack"></param>
+		/// <param name="needle"></param>
+		/// <returns></returns>
+		public static int[] locateAll(byte[] haystack, byte[] needle) {
+			if(isEmptyLocate(haystack, needle))
+				return empty_int_array;
+
+			var list = new List<int>();
+
+			for(int i = 0; i < haystack.Length; i++) {
+				if(!isMatch(haystack, i, needle))
+					continue;
+
+				list.Add(i);
+			}
+
+			return list.Count == 0 ? empty_int_array : list.ToArray();
+		}
+
+
+		/// <summary>
+		/// Finds the first occurance of a pattern of bytes inside byte[].
+		/// </summary>
+		/// <param name="haystack">Byte[] to search through</param>
+		/// <param name="needle">Byte[] to search for.</param>
+		/// <returns></returns>
+		public static int locateFirst(byte[] haystack, byte[] needle) {
+			if(isEmptyLocate(haystack, needle))
+				return -1;
+
+			for(int i = 0; i < haystack.Length; i++) {
+				if(!isMatch(haystack, i, needle))
+					continue;
+
+				return i;
+			}
+
+			return -1;
+		}
+
+		static bool isMatch(byte[] array, int position, byte[] needle) {
+			if(needle.Length > (array.Length - position))
+				return false;
+
+			for(int i = 0; i < needle.Length; i++)
+				if(array[position + i] != needle[i])
+					return false;
+
+			return true;
+		}
+
+		static bool isEmptyLocate(byte[] array, byte[] needle) {
+			return array == null
+					|| needle == null
+					|| array.Length == 0
+					|| needle.Length == 0
+					|| needle.Length > array.Length;
+		}
 	}
 }
