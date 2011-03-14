@@ -290,7 +290,7 @@ namespace dtxCore {
 		/// <param name="haystack"></param>
 		/// <param name="needle"></param>
 		/// <returns></returns>
-		public static int[] locateAll(byte[] haystack, byte[] needle) {
+		public static int[] byteIndexOfAll(byte[] haystack, byte[] needle) {
 			if(isEmptyLocate(haystack, needle))
 				return empty_int_array;
 
@@ -313,7 +313,7 @@ namespace dtxCore {
 		/// <param name="haystack">Byte[] to search through</param>
 		/// <param name="needle">Byte[] to search for.</param>
 		/// <returns></returns>
-		public static int locateFirst(byte[] haystack, byte[] needle) {
+		public static int byteIndexOf(byte[] haystack, byte[] needle) {
 			if(isEmptyLocate(haystack, needle))
 				return -1;
 
@@ -327,7 +327,7 @@ namespace dtxCore {
 			return -1;
 		}
 
-		static bool isMatch(byte[] array, int position, byte[] needle) {
+		private static bool isMatch(byte[] array, int position, byte[] needle) {
 			if(needle.Length > (array.Length - position))
 				return false;
 
@@ -338,7 +338,7 @@ namespace dtxCore {
 			return true;
 		}
 
-		static bool isEmptyLocate(byte[] array, byte[] needle) {
+		private static bool isEmptyLocate(byte[] array, byte[] needle) {
 			return array == null
 					|| needle == null
 					|| array.Length == 0
