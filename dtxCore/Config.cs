@@ -17,7 +17,7 @@ namespace dtxCore {
 	/// </summary>
 	public class Config {
 
-		private string settings_file = "settings.dcf";
+		private string save_file = "settings.dcf";
 		private Dictionary<string, string> properties = new Dictionary<string, string>();
 		private bool changed = false;
 
@@ -25,7 +25,9 @@ namespace dtxCore {
 		/// Constructor for Config class.
 		/// </summary>
 		/// <param name="callback">Delegate that is called when the config file does not exist.</param>
-		public Config(ConfigInitDelegate callback) {
+		/// <param name="settings_file">Location of the file to save the program settings file.</param>
+		public Config(ConfigInitDelegate callback, string settings_file) {
+			this.save_file = settings_file;
 			if(!File.Exists(settings_file)) {
 				callback(this);
 				save();
@@ -42,7 +44,7 @@ namespace dtxCore {
 			if(!changed)
 				return;
 
-			StreamWriter sw = new StreamWriter(settings_file);
+			StreamWriter sw = new StreamWriter(save_file);
 
 			sw.WriteLine("//Dtronix Configuration File v1");
 			foreach(string key in properties.Keys) {
@@ -61,7 +63,7 @@ namespace dtxCore {
 		/// Load all the settings from the cfg file.
 		/// </summary>
 		public void load() {
-			StreamReader sr = new StreamReader(settings_file);
+			StreamReader sr = new StreamReader(save_file);
 			string line;
 
 			while((line = sr.ReadLine()) != null) {
