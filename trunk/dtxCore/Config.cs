@@ -17,7 +17,7 @@ namespace dtxCore {
 	/// </summary>
 	public class Config {
 
-		private string save_file = "settings.dcf";
+		private string save_file;
 		private Dictionary<string, string> properties = new Dictionary<string, string>();
 		private bool changed = false;
 
@@ -27,8 +27,8 @@ namespace dtxCore {
 		/// <param name="callback">Delegate that is called when the config file does not exist.</param>
 		/// <param name="settings_file">Location of the file to save the program settings file.</param>
 		public Config(ConfigInitDelegate callback, string settings_file) {
-			this.save_file = settings_file;
-			if(!File.Exists(settings_file)) {
+			save_file = settings_file;
+			if(!File.Exists(save_file)) {
 				callback(this);
 				save();
 			} else {
@@ -43,6 +43,9 @@ namespace dtxCore {
 			// No need to save if the file has not changed.
 			if(!changed)
 				return;
+
+			if (!Directory.Exists(save_file))
+				Directory.CreateDirectory(Path.GetDirectoryName(save_file));
 
 			StreamWriter sw = new StreamWriter(save_file);
 
