@@ -31,9 +31,13 @@ namespace dtxCore {
 			return new string(buffer_return);
 		}
 
-		private static UTF8Encoding utf8_encoding = new UTF8Encoding();
-
+		/// <summary>
+		/// Decode a base64 encoded string to its original text.
+		/// </summary>
+		/// <param name="input_string">Base64 encoded string.</param>
+		/// <returns></returns>
 		public static string base64Decode(string input_string) {
+			 UTF8Encoding utf8_encoding = new UTF8Encoding();
 			Decoder utf8Decode = utf8_encoding.GetDecoder();
 			byte[] to_decode_byte = Convert.FromBase64String(input_string);
 			char[] decoded_char = new char[utf8Decode.GetCharCount(to_decode_byte, 0, to_decode_byte.Length)];
@@ -41,12 +45,22 @@ namespace dtxCore {
 			return new string(decoded_char);
 		}
 
+		/// <summary>
+		/// Encode a string in base64 to enable easy transport over web protocols.
+		/// </summary>
+		/// <param name="input_string">String to encode in base64.</param>
+		/// <returns>Base64 encoded string.</returns>
 		public static string base64Encode(string input_string) {
+			UTF8Encoding utf8_encoding = new UTF8Encoding();
 			return Convert.ToBase64String(utf8_encoding.GetBytes(input_string));
 		}
 
-
-		public static string md5Sum(string str) {
+		/// <summary>
+		/// Return a MD5 hash for an input string.
+		/// </summary>
+		/// <param name="str">String to have hashed.</param>
+		/// <returns>MD5 hashed string.</returns>
+		public static string md5Hash(string str) {
 			byte[] unicodeText = Encoding.UTF8.GetBytes(str);
 
 			MD5 md5 = new MD5CryptoServiceProvider();
@@ -57,7 +71,8 @@ namespace dtxCore {
 				sb.Append(result[i].ToString("X2"));
 			}
 
-			return sb.ToString();
+			// Ensure to return a lower string to match standards
+			return sb.ToString().ToLower();
 		}
 
 		private const long size_kylobyte = 1024;
