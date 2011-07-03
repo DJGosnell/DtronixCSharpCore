@@ -69,7 +69,6 @@
     <Compile Include="Controls\VistaMenu\VistaMenu.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="DataClasses.cs" />
     <Compile Include="Forms\frmAbout.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -94,6 +93,7 @@
     </Compile>
     <Compile Include="SevenZip.cs" />
     <Compile Include="TripleDESCrypto.cs" />
+    <Compile Include="Utilities.dc.cs" />
     <Compile Include="WindowsHooks.cs" />
     <Compile Include="Json\DataReaderProvider.cs" />
     <Compile Include="Json\DataWriterProvider.cs" />

@@ -12,9 +12,7 @@ namespace dtxCore {
 
 			string arch = (architecture == -1) ? "" : " " + architecture.ToString() + "-bit";
 			string sp = (service_pack == null) ? "" : " " + service_pack;
-			return os.TrimEnd(new char[] {' '}) + sp  + arch;
-
-			
+			return os.TrimEnd(new char[] { ' ' }) + sp + arch;
 		}
 	}
 }
