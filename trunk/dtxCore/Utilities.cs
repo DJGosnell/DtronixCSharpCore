@@ -94,12 +94,21 @@ namespace dtxCore {
 			return "0 Bytes";
 		}
 
+		/// <summary>
+		/// Converts a long Unix timestamp into a DateTime.
+		/// </summary>
+		/// <param name="timestamp">Unix timestamp.</param>
+		/// <returns>Converted timestamp.</returns>
 		public static DateTime unixToDateTime(long timestamp) {
-			DateTime origin = new DateTime(1970, 1, 1, 0, 0, 0, 0);
-			return origin.AddSeconds(timestamp);
+			return new DateTime(1970, 1, 1, 0, 0, 0, 0).AddSeconds(timestamp);
 		}
 
 
+		/// <summary>
+		/// Convertes a DateTime into a Unix long timestamp.
+		/// </summary>
+		/// <param name="date">DateTime to convert.</param>
+		/// <returns>Converted DateTime.</returns>
 		public static long dateTimeToUnix(DateTime date) {
 			DateTime origin = new DateTime(1970, 1, 1, 0, 0, 0, 0);
 			TimeSpan diff = date - origin;
