@@ -75,25 +75,35 @@ namespace dtxCore {
 			return sb.ToString().ToLower();
 		}
 
-		private const long size_kylobyte = 1024;
-		private const long size_megabyte = 1024 * size_kylobyte;
-		private const long size_gigabyte = 1024 * size_megabyte;
+		/// <summary>
+		/// Outputs a formatted string of bytes.
+		/// </summary>
+		/// <param name="bytes">Int64 of bytes to parse.</param>
+		/// <returns>String of formatted bytes.</returns>
+		public static string formattedSize(long bytes) {
+			const int scale = 1024;
+			string[] orders = new string[] { "GB", "MB", "KB", "Bytes" };
+			long max = (long)Math.Pow(scale, orders.Length - 1);
 
+			foreach(string order in orders) {
+				if(bytes > max)
+					return string.Format("{0:##.##} {1}", decimal.Divide(bytes, max), order);
 
-
-		public static string formattedSize(long input_size) {
-			if(input_size >= size_gigabyte) {
-				return ((decimal)input_size / (decimal)size_gigabyte).ToString("F") + " GB";
-
-			} else if(input_size >= size_megabyte) {
-				return ((double)input_size / (double)size_megabyte).ToString("F") + " MB";
-
-			} else if(input_size >= (decimal)size_kylobyte) {
-				return ((double)input_size / (double)size_kylobyte).ToString("F0") + " KB";
-
-			} else {
-				return input_size + " B";
+				max /= scale;
 			}
+			return "0 Bytes";
+		}
+
+		public static DateTime unixToDateTime(long timestamp) {
+			DateTime origin = new DateTime(1970, 1, 1, 0, 0, 0, 0);
+			return origin.AddSeconds(timestamp);
+		}
+
+
+		public static long dateTimeToUnix(DateTime date) {
+			DateTime origin = new DateTime(1970, 1, 1, 0, 0, 0, 0);
+			TimeSpan diff = date - origin;
+			return Convert.ToInt64(diff.TotalSeconds);
 		}
 
 		/// <summary>
