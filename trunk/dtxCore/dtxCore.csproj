@@ -51,12 +51,14 @@
     <PlatformTarget>x86</PlatformTarget>
     <OutputPath>bin\Release\</OutputPath>
     <Optimize>true</Optimize>
+    <DocumentationFile>bin\Release\dtxCore.xml</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup>
-    <SignAssembly>true</SignAssembly>
+    <SignAssembly>false</SignAssembly>
   </PropertyGroup>
   <PropertyGroup>
-    <AssemblyOriginatorKeyFile>DtronixKeyFile.pfx</AssemblyOriginatorKeyFile>
+    <AssemblyOriginatorKeyFile>
+    </AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -129,7 +131,6 @@
     <Content Include="Json\Readme.txt" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="DtronixKeyFile.pfx" />
     <None Include="Properties\BuildInformation.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
       <LastGenOutput>BuildInformation.cs</LastGenOutput>
