@@ -28,7 +28,7 @@ namespace dtxCore.Forms {
 			OperatingSystemInfo osi = Utilities.getOSInfo();
 			if(osi.os.Contains("XP")) {
 				Size min_size = new Size() {
-					Height = this.MinimumSize.Height - 8,
+					Height = this.MinimumSize.Height,
 					Width = this.MinimumSize.Width - 8
 				};
 
@@ -50,7 +50,8 @@ namespace dtxCore.Forms {
 			{"JsonFx.NET JSON Serializer", Properties.Resources.License_JsonFx_NET_JSON_Serializer},
 			{"Sweetie Icons", Properties.Resources.License_Sweetie_Icons},
 			{"User Activity Hook", Properties.Resources.License_User_Activity_Hook },
-			{"7-Zip", Properties.Resources.License_Seven_Zip},	
+			{"7-Zip", Properties.Resources.License_Seven_Zip},
+			{"ThrottledStream", Properties.Resources.License_ThrottledStream},
 			{"Vista Menu", Properties.Resources.License_Vista_Menu }
 		};
 

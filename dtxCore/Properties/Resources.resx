@@ -213,6 +213,13 @@ Attribution
 -----------
 No link is required on your site or application. In projects that are redistributed, like templates and opensource software, please keep this text file with the icons. Lastly, don't claim the icons as your own work.</value>
   </data>
+  <data name="License_ThrottledStream" xml:space="preserve">
+    <value>Distributed under the terms of the Code Project Open License (CPOL) 1.02 license:
+
+The License: http://www.codeproject.com/info/cpol10.aspx
+
+Thanks to P.J. van de Sande for this great class of code.</value>
+  </data>
   <data name="License_User_Activity_Hook" xml:space="preserve">
     <value>This File is Part of the CallButler Open Source PBX (http://www.codeplex.com/callbutler)
 

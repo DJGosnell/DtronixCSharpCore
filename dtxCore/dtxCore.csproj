@@ -89,6 +89,7 @@
     <Compile Include="Forms\frmConsole.Designer.cs">
       <DependentUpon>frmConsole.cs</DependentUpon>
     </Compile>
+    <Compile Include="IO\ThrottledStream.cs" />
     <Compile Include="Properties\BuildInformation.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
