@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using dtxCore.Json;
 using System.IO;
+using System.Threading;
 
 namespace dtxCore {
 
@@ -20,6 +21,7 @@ namespace dtxCore {
 		private string save_file;
 		private Dictionary<string, string> properties = new Dictionary<string, string>();
 		private bool changed = false;
+		private int configuration_version;
 
 		/// <summary>
 		/// Constructor for Config class.
@@ -44,6 +46,13 @@ namespace dtxCore {
 			if(!changed)
 				return;
 
+			ThreadPool.QueueUserWorkItem(saveConfigurations);
+		}
+
+		/// <summary>
+		/// Method to internally save the data to the configuration file.  Called via the ThreadPool
+		/// </summary>
+		private void saveConfigurations(object thread){
 			if (!Directory.Exists(save_file))
 				Directory.CreateDirectory(Path.GetDirectoryName(save_file));
 
@@ -66,17 +75,40 @@ namespace dtxCore {
 		/// Load all the settings from the cfg file.
 		/// </summary>
 		public void load() {
-			StreamReader sr = new StreamReader(save_file);
-			string line;
+			StreamReader file = new StreamReader(save_file);
+			string version = file.ReadLine();
 
-			while((line = sr.ReadLine()) != null) {
+			if(version == null) // if the file is null, then we have nothing to load.
+				return;
+
+			switch(version.Trim()){
+				case "//Dtronix Configuration File v1":
+					loadConfigV1(file);
+					break;
+
+				default: // If we can not determine which file we are dealing with, then try to parse it with the latest parser. We might get lucky.
+					loadConfigV1(file);
+					break;
+			}
+
+			// Close the file
+			file.Close();
+		}
+
+		/// <summary>
+		/// Load version one of the configuration file standard.
+		/// </summary>
+		/// <param name="file"></param>
+		private void loadConfigV1(StreamReader file) {
+			configuration_version = 1;
+			string line;
+			
+			while((line = file.ReadLine()) != null) {
 				int split = line.IndexOf('=');
-				if(split != -1){
+				if(split != -1) {
 					properties.Add(line.Substring(0, split), line.Substring(split + 1));
 				}
 			}
-
-			sr.Close();
 		}
 
 		/// <summary>
