@@ -100,7 +100,6 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
-    <Compile Include="SevenZip.cs" />
     <Compile Include="TripleDESCrypto.cs" />
     <Compile Include="Utilities.dc.cs" />
     <Compile Include="WindowsHooks.cs" />

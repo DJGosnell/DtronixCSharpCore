@@ -12,6 +12,13 @@ namespace dtxCore {
 	/// </summary>
 	/// <param name="instance">Instance of the current config class.</param>
 	public delegate void ConfigInitDelegate(Config instance);
+
+
+	/// <summary>
+	/// Delegate to handle the ValueChanged event.
+	/// </summary>
+	/// <param name="new_value"></param>
+	public delegate void ConfigValueChangedDelegate();
 	
 	/// <summary>
 	/// Class to aid in the storage and retrieval of values and classes in a plain text file.
@@ -20,6 +27,7 @@ namespace dtxCore {
 
 		private string save_file;
 		private Dictionary<string, string> properties = new Dictionary<string, string>();
+		private Dictionary<string, List<ConfigValueChangedDelegate>> value_changed_events = new Dictionary<string, List<ConfigValueChangedDelegate>>();
 		private bool changed = false;
 		private int configuration_version;
 
@@ -50,7 +58,7 @@ namespace dtxCore {
 		}
 
 		/// <summary>
-		/// Method to internally save the data to the configuration file.  Called via the ThreadPool
+		/// Method to internally save the data to the configuration file.  Called via the ThreadPool.QueueUserWorkItem method.
 		/// </summary>
 		private void saveConfigurations(object thread){
 			if (!Directory.Exists(save_file))
@@ -60,7 +68,7 @@ namespace dtxCore {
 
 			sw.WriteLine("//Dtronix Configuration File v1");
 			foreach(string key in properties.Keys) {
-				sw.Write(key);
+				sw.Write(key.ToLower());
 				sw.Write("=");
 				sw.Write(properties[key]);
 				sw.Write(Environment.NewLine);
@@ -98,7 +106,10 @@ namespace dtxCore {
 		/// <summary>
 		/// Load version one of the configuration file standard.
 		/// </summary>
-		/// <param name="file"></param>
+		/// <remarks>
+		/// Do not close the stream inside this method.  This will be handled from the method that called this method.
+		/// </remarks>
+		/// <param name="file">File stream to be readign from.</param>
 		private void loadConfigV1(StreamReader file) {
 			configuration_version = 1;
 			string line;
@@ -109,6 +120,40 @@ namespace dtxCore {
 					properties.Add(line.Substring(0, split), line.Substring(split + 1));
 				}
 			}
+		}
+
+		/// <summary>
+		/// Add a event delegate to be called any time the specified value changes.
+		/// </summary>
+		/// <param name="name">Name of the property to add the event to.</param>
+		/// <param name="callback">Event delegate to call when the value has changed.</param>
+		public void addValueChangedEvent(string name, ConfigValueChangedDelegate callback){
+			if(value_changed_events.ContainsKey(name)) { // Check to see if there is already another delegate added on this key.
+				value_changed_events[name].Add(callback);
+
+			} else { // Key does not exist so we have to add the List to the Dict.
+				var event_list = new List<ConfigValueChangedDelegate>();
+				event_list.Add(callback);
+
+				value_changed_events.Add(name, event_list);
+			}
+		}
+
+		/// <summary>
+		/// Removes an event that is added to the event list.
+		/// </summary>
+		/// <param name="name">Name of the property to find the event inside.</param>
+		/// <param name="callback">Event delegate to remove from the queue of callable events.</param>
+		/// <returns>True of successful removal; False otherwise.</returns>
+		public bool removeValueChangedEvent(string name, ConfigValueChangedDelegate callback) {
+			bool removed_callback = false;
+			if(value_changed_events.ContainsKey(name)) {
+				if(value_changed_events[name].Contains(callback)){
+					return value_changed_events[name].Remove(callback);
+				}
+			}
+
+			return removed_callback;
 		}
 
 		/// <summary>
@@ -170,20 +215,11 @@ namespace dtxCore {
 		}
 
 		/// <summary>
-		/// Get the value of the property and increments the value afterword.
-		/// </summary>
-		/// <param name="name">Name of the property to retrieve.</param>
-		/// <returns>Value that was requested.</returns>
-		public int getAndIncrement(string name) {
-			int current_num = get<int>(name);
-			set(name, current_num + 1);
-			save();
-			return current_num;
-		}
-
-		/// <summary>
 		/// Set a value to a proeprty.
 		/// </summary>
+		/// <remarks>
+		/// Values are not case sensitive.  All stored values are automatically converted to lowercase.
+		/// </remarks>
 		/// <param name="name">Property name.</param>
 		/// <param name="value">Value to save to the property.</param>
 		public void set(string name, object value) {
@@ -198,7 +234,44 @@ namespace dtxCore {
 				properties.Add(name, sb.ToString());
 			}
 
+			// Check to see if we have any events queued.
+			if(value_changed_events.ContainsKey(name)) {
+				// Call all the events on another thread.
+				ThreadPool.QueueUserWorkItem(fireValueChangedEvents, new DC_ValueChangedEventVariables(name, value));
+			}
+
 			changed = true;
+		}
+
+
+		/// <summary>
+		/// Data Class to handle the passing of the changed values to the threaded method.
+		/// </summary>
+		private class DC_ValueChangedEventVariables {
+			public DC_ValueChangedEventVariables(string name, object value) {
+				this.name = name;
+				this.value = value;
+			}
+			/// <summary>
+			/// Name of the property that changed.
+			/// </summary>
+			public string name;
+
+			/// <summary>
+			/// Value of the property that changed.
+			/// </summary>
+			public object value;
+		}
+
+		private void fireValueChangedEvents(object info) {
+			DC_ValueChangedEventVariables event_info = info as DC_ValueChangedEventVariables;
+			if(event_info == null) // We don't want null reference exceptions now do we?
+				return;
+
+			foreach(var vc_event in value_changed_events[event_info.name]) {
+				vc_event();
+			}
+
 		}
 
 		/// <summary>
@@ -206,7 +279,7 @@ namespace dtxCore {
 		/// </summary>
 		/// <param name="name">Property name.</param>
 		/// <param name="value">Value to save to the property if the property is not set already.</param>
-		public void setIfNotSet(string name, object value) {
+		public void setIfEmpty(string name, object value) {
 			if(!properties.ContainsKey(name)) {
 				set(name, value);
 			}
