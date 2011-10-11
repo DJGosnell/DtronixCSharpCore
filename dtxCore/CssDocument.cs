@@ -179,6 +179,9 @@ namespace dtxCore {
 
 
 		private string[] parseSelectors() {
+			if(eof)
+				return new string[] { };
+
 			List<string> selectors = new List<string>();
 			StringBuilder selector = new StringBuilder();
 			eatWhitespace();
@@ -210,6 +213,9 @@ namespace dtxCore {
 		}
 
 		private Property[] parseProperties() {
+			if(eof)
+				return new Property[] { };
+
 			List<Property> properties = new List<Property>();
 			StringBuilder prop = new StringBuilder();
 			StringBuilder val = new StringBuilder();
