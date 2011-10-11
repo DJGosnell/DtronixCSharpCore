@@ -7,7 +7,7 @@ namespace dtxCore {
 	/// <summary>
 	/// Class to aid in the parsing of CSS files.
 	/// </summary>
-	public class CssParser {
+	public class CssDocument {
 
 		public class Property {
 			/// <summary>
@@ -27,15 +27,27 @@ namespace dtxCore {
 		private Dictionary<string, Property[]> rule_set = new Dictionary<string, Property[]>();
 
 		/// <summary>
-		/// Parses a CSS stream into a useable format.  Closes the stream on completion.
+		/// Parses a CSS stream into a useable format.  Closes the stream on completion.  Will override previous rule sets.
 		/// </summary>
-		/// <param name="css_stream">File stream to parse.</param>
-		public void parse(Stream css_stream) {
-			eof = false;
-			rule_set.Clear();
+		/// <param name="stream">File stream to parse.</param>
+		public CssDocument(Stream stream) {
+			this.stream = new StreamReader(stream);
+			parse();
+			this.stream.Close();
+		}
 
-			stream = new StreamReader(css_stream);
 
+		/// <summary>
+		/// Combines existing CssDocuments into one new document.
+		/// </summary>
+		/// <param name="documents">Documents to combine into this instance.</param>
+		public CssDocument(CssDocument[] documents) {
+			combineDocuments(documents);
+
+		}
+
+
+		private void parse() {
 			string[] selectors;
 			Property[] properties;
 			Property[] property_set;
@@ -67,8 +79,32 @@ namespace dtxCore {
 
 				}
 			}
+		}
 
-			css_stream.Close();
+		private void combineDocuments(CssDocument[] documents) {
+			Dictionary<string, Property[]> new_rule_set = new Dictionary<string, Property[]>();
+			List<Property[]> properties_list = new List<Property[]>();
+
+			foreach(CssDocument document in documents) {
+
+				foreach(KeyValuePair<string, Property[]> rule in document.rule_set) {
+
+					if(new_rule_set.ContainsKey(rule.Key)) {
+						// Key already exists.  So, just combine both rules together.
+						properties_list.Clear();
+						properties_list.Add(new_rule_set[rule.Key]);
+						properties_list.Add(rule.Value);
+
+						new_rule_set[rule.Key] = combineRules(properties_list);
+
+					} else {
+						// Key does not exist, so just add it.
+						new_rule_set.Add(rule.Key, rule.Value);
+					}
+				}
+			}
+
+			rule_set = new_rule_set;
 		}
 
 		/// <summary>
