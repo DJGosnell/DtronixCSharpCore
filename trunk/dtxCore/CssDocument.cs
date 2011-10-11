@@ -36,6 +36,16 @@ namespace dtxCore {
 			this.stream.Close();
 		}
 
+		/// <summary>
+		/// Parses a CSS stream into a useable format.  Closes the stream on completion.  Will override previous rule sets.
+		/// </summary>
+		/// <param name="text">String of CSS characters to parse.</param>
+		public CssDocument(string text) {
+			this.stream = new StreamReader(new MemoryStream(Encoding.UTF8.GetBytes(text)));
+			parse();
+			this.stream.Close();
+		}
+
 
 		/// <summary>
 		/// Combines existing CssDocuments into one new document.
@@ -81,32 +91,6 @@ namespace dtxCore {
 			}
 		}
 
-		private void combineDocuments(CssDocument[] documents) {
-			Dictionary<string, Property[]> new_rule_set = new Dictionary<string, Property[]>();
-			List<Property[]> properties_list = new List<Property[]>();
-
-			foreach(CssDocument document in documents) {
-
-				foreach(KeyValuePair<string, Property[]> rule in document.rule_set) {
-
-					if(new_rule_set.ContainsKey(rule.Key)) {
-						// Key already exists.  So, just combine both rules together.
-						properties_list.Clear();
-						properties_list.Add(new_rule_set[rule.Key]);
-						properties_list.Add(rule.Value);
-
-						new_rule_set[rule.Key] = combineRules(properties_list);
-
-					} else {
-						// Key does not exist, so just add it.
-						new_rule_set.Add(rule.Key, rule.Value);
-					}
-				}
-			}
-
-			rule_set = new_rule_set;
-		}
-
 		/// <summary>
 		/// Searches and combines any found rules for the selected selectors. Automatically adds * to selector list. (Case Insensitive)
 		/// </summary>
@@ -142,6 +126,33 @@ namespace dtxCore {
 			}
 
 			return combineRules(all_selected_properties);
+		}
+
+
+		private void combineDocuments(CssDocument[] documents) {
+			Dictionary<string, Property[]> new_rule_set = new Dictionary<string, Property[]>();
+			List<Property[]> properties_list = new List<Property[]>();
+
+			foreach(CssDocument document in documents) {
+
+				foreach(KeyValuePair<string, Property[]> rule in document.rule_set) {
+
+					if(new_rule_set.ContainsKey(rule.Key)) {
+						// Key already exists.  So, just combine both rules together.
+						properties_list.Clear();
+						properties_list.Add(new_rule_set[rule.Key]);
+						properties_list.Add(rule.Value);
+
+						new_rule_set[rule.Key] = combineRules(properties_list);
+
+					} else {
+						// Key does not exist, so just add it.
+						new_rule_set.Add(rule.Key, rule.Value);
+					}
+				}
+			}
+
+			rule_set = new_rule_set;
 		}
 
 		private Property[] combineRules(List<Property[]> property_sets) {
