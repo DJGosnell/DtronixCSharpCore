@@ -184,8 +184,6 @@ namespace dtxCore {
 			eatWhitespace();
 
 			while(eof == false) {
-
-
 				if(current_token == '{') {
 					if(selector.ToString() != "")
 						selectors.Add(selector.ToString().ToLower());
@@ -265,7 +263,36 @@ namespace dtxCore {
 			if(current_char == -1) {
 				eof = true;
 			}
-			return current_token = (char)current_char;
+
+			current_token = (char)current_char;
+
+			// Check to see if we ran into a comment.
+			if(current_token == '/' && (char)stream.Peek() == '*') {
+				// This is a comment.  Eat everything now!
+				int ate_char = stream.Read();
+				while(ate_char != -1) {
+
+					// See if this is the end of the comment.
+					if((char)ate_char == '*' && (char)stream.Peek() == '/')
+						break;
+
+					// This is still the comment.  Continue eating.
+					ate_char = stream.Read();
+				}
+
+				// Advance to the "/"
+				stream.Read();
+				// Advance to right after the comment.
+				current_char = stream.Read();
+
+				if(current_char == -1) {
+					eof = true;
+				}
+
+				current_token = (char)current_char;
+			}
+
+			return current_token;
 		}
 
 		private bool isWhitespace(char character) {
@@ -281,7 +308,7 @@ namespace dtxCore {
 
 			while(isWhitespace(current_token)) {
 				ate = true;
-				current_token = (char)stream.Read();
+				advanceToken();
 			}
 
 			return ate;
