@@ -35,14 +35,22 @@ namespace dtxCore {
 		/// Decode a base64 encoded string to its original text.
 		/// </summary>
 		/// <param name="input_string">Base64 encoded string.</param>
-		/// <returns></returns>
+		/// <returns>Decoded string.</returns>
 		public static string base64Decode(string input_string) {
 			 UTF8Encoding utf8_encoding = new UTF8Encoding();
+			byte[] to_decode_byte = base64DecodeBytes(input_string);
+			return Encoding.UTF8.GetString(to_decode_byte);
+		}
+
+		/// <summary>
+		/// Decode a base64 encoded string to its original byte array.
+		/// </summary>
+		/// <param name="input_string">Base64 encoded string.</param>
+		/// <returns>Decoded byte array.</returns>
+		public static byte[] base64DecodeBytes(string input_string) {
+			UTF8Encoding utf8_encoding = new UTF8Encoding();
 			Decoder utf8Decode = utf8_encoding.GetDecoder();
-			byte[] to_decode_byte = Convert.FromBase64String(input_string);
-			char[] decoded_char = new char[utf8Decode.GetCharCount(to_decode_byte, 0, to_decode_byte.Length)];
-			utf8Decode.GetChars(to_decode_byte, 0, to_decode_byte.Length, decoded_char, 0);
-			return new string(decoded_char);
+			return Convert.FromBase64String(input_string);
 		}
 
 		/// <summary>
@@ -51,8 +59,16 @@ namespace dtxCore {
 		/// <param name="input_string">String to encode in base64.</param>
 		/// <returns>Base64 encoded string.</returns>
 		public static string base64Encode(string input_string) {
-			UTF8Encoding utf8_encoding = new UTF8Encoding();
-			return Convert.ToBase64String(utf8_encoding.GetBytes(input_string));
+			return Convert.ToBase64String(Encoding.UTF8.GetBytes(input_string));
+		}
+
+		/// <summary>
+		/// Encode a string in base64 to enable easy transport over web protocols.
+		/// </summary>
+		/// <param name="input_bytes">Byte array to encode in base64.</param>
+		/// <returns>Base64 encoded string.</returns>
+		public static string base64EncodeBytes(byte[] input_bytes) {
+			return Convert.ToBase64String(input_bytes);
 		}
 
 		/// <summary>
