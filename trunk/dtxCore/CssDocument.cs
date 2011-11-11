@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Text;
 using System.IO;
+using System.Drawing;
+using System.Text.RegularExpressions;
 
 namespace dtxCore {
 	/// <summary>
@@ -15,10 +17,115 @@ namespace dtxCore {
 			/// </summary>
 			public string Name { get; set; }
 
+			public string _value;
 			/// <summary>
 			/// Value for the property.
 			/// </summary>
-			public string Value { get; set; }
+			public string Value {
+				get {
+					return _value;
+				}
+				set {
+					_value = value;
+
+					// Reset all cache in the event that this value is changed from when it was last parsed.
+					_value_color = null;
+					_value_string = null;
+				}
+			}
+
+			private Nullable<Color> _value_color = null;
+			/// <summary>
+			/// Gets or Sets the color value for this property.  Get parses HEX and RGB. Set stores value in RGB
+			/// </summary>
+			public Color ValueColor {
+				get {
+					// Check to see if we have the value already cached.  If so, just return the already parsed value.
+					if(_value_color.HasValue)
+						return _value_color.Value;
+
+					// Remove any spaces and whitespace.
+					string value = Value.Trim().Replace(" ", "");
+					_value_color = Color.FromName(value);
+
+					// Determine if the parsing succeeded or failed.  If it failed, the returned color will be ARGB 0,0,0,0.
+					if(_value_color.Value.A == 0 && _value_color.Value.R == 0 && _value_color.Value.G == 0 && _value_color.Value.B == 0) {
+						_value_color = null;
+					} else {
+						return _value_color.Value;
+					}
+
+					// Determine if we have a RGB color or a HEX color.
+					if(value.IndexOf("rgb", StringComparison.CurrentCultureIgnoreCase) == 0) { // RGB
+						Match found_matches = Regex.Match(value, @"rgb\(([0-9]{1,3}),([0-9]{1,3}),([0-9]{1,3})\)", RegexOptions.IgnoreCase);
+
+						// Determine if we found anything.  Should only find four matches.
+						if(found_matches.Groups.Count == 4) {
+							try {
+								int r = int.Parse(found_matches.Groups[1].Value);
+								int g = int.Parse(found_matches.Groups[2].Value);
+								int b = int.Parse(found_matches.Groups[3].Value);
+
+								_value_color = Color.FromArgb(r, g, b);
+							} catch { }
+						}
+
+					} else if(value.IndexOf('#') == 0) { // HEX
+						try {
+							// Parse the string to the corresponding RGB integers.
+							int r = int.Parse(value.Substring(1, 2), System.Globalization.NumberStyles.HexNumber);
+							int g = int.Parse(value.Substring(3, 2), System.Globalization.NumberStyles.HexNumber);
+							int b = int.Parse(value.Substring(5, 2), System.Globalization.NumberStyles.HexNumber);
+
+							_value_color = Color.FromArgb(r, g, b);
+						} catch { } // No need to catch this error because all we need to know is that it could not parse..
+					}
+
+					return _value_color.GetValueOrDefault(Color.Empty);
+				}
+
+				set {
+					// Set the cached value.
+					_value_color = value;
+
+					// Set the value string to the corresponding RGB color value.
+					Value = String.Format("rgb({0},{1},{2})", value.R, value.G, value.B);
+				}
+			}
+
+			private string _value_string = null;
+			/// <summary>
+			/// Gets or sets the string value for this property.  Get parses the string and removes any quotes. Set stores the string in quotes.
+			/// </summary>
+			public string ValueString {
+				get {
+					// Check to see if we have the value already cached.  If so, just return the already parsed value.
+					if(_value_string != null)
+						return _value_string;
+
+					// Remove any whitespace around the string.
+					string parsed_string = Value.Trim();
+
+					// Check to see if we have an actual string or not.
+					if(parsed_string.IndexOf('"') == 0 && parsed_string.LastIndexOf('"') == (parsed_string.Length - 1)) {
+						_value_string = parsed_string.Substring(1, parsed_string.Length - 2);
+
+					} else {
+
+						// If we don't have a string, then set the cache to have save value as the Value property.
+						_value_string = Value;
+					}
+
+					return _value_string;
+				}
+				set {
+					// Set the cache variable
+					_value_string = value;
+
+					// Set the Value to the proper value.
+					Value = string.Format("\"{0}\"", value);
+				}
+			}
 		}
 
 		private StreamReader stream;
@@ -31,19 +138,19 @@ namespace dtxCore {
 		/// </summary>
 		/// <param name="stream">File stream to parse.</param>
 		public CssDocument(Stream stream) {
-			this.stream = new StreamReader(stream);
-			parse();
-			this.stream.Close();
+			using(this.stream = new StreamReader(stream)) {
+				parse();
+			}
 		}
 
 		/// <summary>
-		/// Parses a CSS stream into a useable format.  Closes the stream on completion.  Will override previous rule sets.
+		/// Parses a CSS stream into a useable format.  Will override previous rule sets.
 		/// </summary>
 		/// <param name="text">String of CSS characters to parse.</param>
 		public CssDocument(string text) {
-			this.stream = new StreamReader(new MemoryStream(Encoding.UTF8.GetBytes(text)));
-			parse();
-			this.stream.Close();
+			using(this.stream = new StreamReader(new MemoryStream(Encoding.UTF8.GetBytes(text)))) {
+				parse();
+			}
 		}
 
 
@@ -53,7 +160,6 @@ namespace dtxCore {
 		/// <param name="documents">Documents to combine into this instance.</param>
 		public CssDocument(CssDocument[] documents) {
 			combineDocuments(documents);
-
 		}
 
 
@@ -133,8 +239,10 @@ namespace dtxCore {
 			Dictionary<string, Property[]> new_rule_set = new Dictionary<string, Property[]>();
 			List<Property[]> properties_list = new List<Property[]>();
 
+			// Loop through all the documents.
 			foreach(CssDocument document in documents) {
 
+				// Loop through each rule in the rule sets.
 				foreach(KeyValuePair<string, Property[]> rule in document.rule_set) {
 
 					if(new_rule_set.ContainsKey(rule.Key)) {
@@ -179,9 +287,6 @@ namespace dtxCore {
 
 
 		private string[] parseSelectors() {
-			if(eof)
-				return new string[] { };
-
 			List<string> selectors = new List<string>();
 			StringBuilder selector = new StringBuilder();
 			eatWhitespace();
@@ -213,9 +318,6 @@ namespace dtxCore {
 		}
 
 		private Property[] parseProperties() {
-			if(eof)
-				return new Property[] { };
-
 			List<Property> properties = new List<Property>();
 			StringBuilder prop = new StringBuilder();
 			StringBuilder val = new StringBuilder();
@@ -291,6 +393,7 @@ namespace dtxCore {
 				// Advance to right after the comment.
 				current_char = stream.Read();
 
+				// Ensure that we have not reached the end of the file yet.
 				if(current_char == -1) {
 					eof = true;
 				}
