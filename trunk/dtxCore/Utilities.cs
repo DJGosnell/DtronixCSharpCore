@@ -9,6 +9,8 @@ using System.Text.RegularExpressions;
 namespace dtxCore {
 
 	public static class Utilities {
+
+		private static Random random_seed = new Random();
 		/// <summary>
 		/// Creates a random hash with specified length.
 		/// </summary>
@@ -18,7 +20,7 @@ namespace dtxCore {
 		public static string createHash(int length, bool uppercase) {
 			int max_value = 35;
 			char[] buffer_return = new char[length];
-			Random random_seed = new Random();
+			
 			char[] character_array = new char[] { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z' };
 
 			if(uppercase) {

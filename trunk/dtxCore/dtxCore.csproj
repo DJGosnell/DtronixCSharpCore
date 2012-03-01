@@ -77,7 +77,6 @@
     <Compile Include="Controls\VistaMenu\VistaMenu.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="CssDocument.cs" />
     <Compile Include="Forms\frmAbout.cs">
       <SubType>Form</SubType>
     </Compile>
